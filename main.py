@@ -1,3 +1,4 @@
+import os
 from datetime import date
 from flask import Flask, abort, render_template, redirect, url_for, flash, request
 from flask_bootstrap import Bootstrap5
@@ -16,7 +17,7 @@ from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
@@ -31,19 +32,19 @@ def load_user(user_id):
 
 
 # # For adding profile images to the comment section
-def get_gravatar(email, size=100, rating='g', default='retro', force_default=False):
-    """Everything explained here: https://flask-gravatar.readthedocs.io/en/latest/"""
-    import hashlib
-
-    default = "../static/assets/img/default-profile.jpg"
-    email_hash = hashlib.sha256(email.lower().encode('utf-8')).hexdigest()
-    return f"https://www.gravatar.com/avatar/{email_hash}/?&s={size}&d={default}&r={rating}&f={force_default}"
+# def get_gravatar(email, size=100, rating='g', default='retro', force_default=False):
+#     """Everything explained here: https://flask-gravatar.readthedocs.io/en/latest/"""
+#     import hashlib
+#
+#     default = "../static/assets/img/default-profile.jpg"
+#     email_hash = hashlib.sha256(email.lower().encode('utf-8')).hexdigest()
+#     return f"https://www.gravatar.com/avatar/{email_hash}/?&s={size}&d={default}&r={rating}&f={force_default}"
 
 
 # CREATE DATABASE
 class Base(DeclarativeBase):
     pass
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///posts.db")
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -286,4 +287,4 @@ def contact():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=False, port=5001)
